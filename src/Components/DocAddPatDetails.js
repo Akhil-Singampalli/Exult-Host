@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { Component } from 'react';
+import "../utils/URL";
 
 
 export default class DocAddPatDetails extends Component {
@@ -32,7 +33,7 @@ export default class DocAddPatDetails extends Component {
 
     componentDidMount() {
 
-        axios.get("http://localhost:8080/docAPI/patdata/1")
+        axios.get(docpatData_URL)
             .then(response => this.setState({
 
                 patData: response.data,

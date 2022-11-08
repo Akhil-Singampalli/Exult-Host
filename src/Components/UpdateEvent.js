@@ -4,41 +4,20 @@ import moment from "moment";
 import { gapi } from 'gapi-script';
 import { getApt_URL,confirmApt_URL} from "../utils/URL";
 
-export default function CreateGoogleEvent (Id) {
+export default function UpdateGoogleEvent (Id) {
     
         
-      const setAptConfirm = (event,data) => {
+        // this.state = {
+            
+        //    aptStatusCode:''
 
-         let url = confirmApt_URL + Id
-                            console.log(data)
-                            // console.log(event.htmlLink.toString())
-                            // // "https://www.google.com/calendar/event?eid=b2FiYmRrdDZ2bmNuYWdkOW1kOW5rY204ZGsgc2luZ2FtcGFsbGlha2hpbEBt"
-                            // var eid= event.htmlLink.toString().match('\/d\/(eid=.+)\/')
-                            // console.log(eid)
-                            let aptData = {
-                                aptId: data.aptId,
-                                aptPatient: data.aptPatient,
-                                aptDoctor: data.aptDoctor,
-                                aptTime: data.aptTime,
-                                aptDate: data.aptDate,
-                                aptStatus: event.htmlLink
-                            }
-
-                            axios.post(url,aptData)
-                                .then(response =>console.log(response)).catch(error => {
-                                    if (error.response) {
-                                        console.log("Fail")
-                                    } else {
-                                        console.log("server down")
-                                    }
-                                });
-      }
+        // }
 
         let urlApt = getApt_URL + Id;
 
         axios.get(urlApt)
             .then(response =>   addEvent(response.data) )
-            .catch(error => { if (error.response) console.log("error") })
+            .catch(error => { if (error.response) this.setState({ errorMessage: "No doctor exist" }) })
     
 
     let addEvent = (data) => {
@@ -50,8 +29,8 @@ export default function CreateGoogleEvent (Id) {
             gapi.client.load('client', () => console.log('bam!'))
 
             gapi.client.init({
-                apiKey: "AIzaSyCr3hrrjQvtvj9Z5-slKS3XwSl55o9B17g",
-                clientId: "693143304041-757ag2eaqnk82dl7l5fstcda62b9838j.apps.googleusercontent.com",
+                apiKey: "AIzaSyDrVkS-ZRFRmTsJvLQTNpshIfEGyr2XhhI",
+                clientId: "229521899518-v2nb1anhnuj8n1rkqsi0qrpjojkl3l7r.apps.googleusercontent.com",
                 discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
                 scope: "https://www.googleapis.com/auth/calendar.events"
             }).then(
@@ -99,36 +78,40 @@ export default function CreateGoogleEvent (Id) {
                         }
                     }
 
-                    var request = gapi.client.calendar.events.insert({
+                    var request = gapi.client.calendar.events.patch({
                         'calendarId': data.aptDoctor,
                         'resource': event,
                     })
 
                     request.execute(event => {
-                        
-                        
-                            // let url = confirmApt_URL + Id
-                            // console.log(event.htmlLink.toString())
-                            // axios.put(url,null ,{params: { googleEvent : event.htmlLink.toString()}})
-                            //     .then(response =>console.log(response)).catch(error => {
-                            //         if (error.response) {
-                            //             console.log("Fail")
-                            //         } else {
-                            //             console.log("server down")
-                            //         }
-                            //     });
-                            console.log(event)
-                            if(event === 200){
-                                setAptConfirm(event,data)
-                                window.open(event.htmlLink)
-                            }                        
-                        // return event.htmlLink.toString()
-                        
+                        console.log(event)
+                        window.open(event.htmlLink)
+                        if(event === 200){
+                            let url = confirmApt_URL + event.target.value
+                            axios.put(url)
+                                .then(response => this.setState({
+                    
+                                    successMessage: "Confirmed Successfully !!",
+                                    errorMessage: "",
+                                })).catch(error => {
+                                    if (error.response) {
+                                        this.setState({ errorMessage: error.response.data.message, successMessage: "" });
+                                    } else {
+                                        this.setState({ errorMessage: "Server is down", successMessage: "" });
+                                    }
+                                });
+                        }
                         
                     })
 
+
                 })
+
+
 
         })
     }
+
+
+
 }
